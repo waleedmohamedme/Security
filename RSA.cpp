@@ -103,5 +103,5 @@ int main() {
         }
         cin >> command;
     }
-    
+    return 0;
 }
