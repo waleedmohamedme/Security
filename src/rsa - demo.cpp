@@ -2,6 +2,7 @@
 #include <ctime>
 #include <string>
 using namespace std;
+
 int max_min(string a, string b, bool max = true) {
 	//if 0 >> a 
 	//if 1 >> b 
@@ -257,6 +258,7 @@ string minusone(string s) {
 	return s;
 }
 string divbig(string a, string divisor) {
+	
 	string final_co = "";
 	string final_reminder = "";
 	string co = "";
