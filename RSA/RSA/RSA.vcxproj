@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\Karatsuba.cpp" />
+    <ClCompile Include="..\..\src\rsa - demo.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7BFF984-753F-4C2C-B4EC-50D84B51707D}</ProjectGuid>
