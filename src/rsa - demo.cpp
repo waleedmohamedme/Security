@@ -277,7 +277,6 @@ string divbig(string a, string divisor) {
 				break;
 			}
 		}
-		string product_limit = a.substr(0, limit);
 		unsigned int i = 1;
 		do {
 			k = stoi(a.substr(0, i)) / stoi(d);
@@ -292,27 +291,14 @@ string divbig(string a, string divisor) {
 		} while (i <= a.length());
 
 		string product = remove(multiply(co, divisor));
-		if (max_min(product, product_limit) == 0) {
+		product = shift(product, a.length() - product.length());
+		if (max_min(product, a) == 0) {
 			k = k - 1;
 			co = to_string(k);
 			product = remove(multiply(co, divisor));
 		}
 
-		string next = remove(subbig(product_limit, product));
-		string temp_next = next;
-		int m = 0;
-		while (max_min(divisor, temp_next) == 0) {
-			if (temp_next.length() < a.substr(limit + m).length()) {
-				temp_next += a.substr(limit + m, 1);
-				m++;
-				co += "0";
-			}
-			break;
-		}
-
-
-
-		next = next + a.substr(limit);
+		string next = remove(subbig(a, product));
 
 		return co + divbig(next, divisor);
 
@@ -332,6 +318,26 @@ string divbig(string a, string divisor) {
 
 }
 
+
+string enc(string x, string n, string m) {
+
+	if (remove(n) == "0") {
+		return "1";
+	}
+
+	if (remove(divbig(n,"2")) == "" || remove(divbig(n,"2")) =="0") {
+		//even n ;
+		string y = enc(x, remove(divbig(n, "2")), m);
+		return enc(multiply(y,y),"1",m);//to be checked not sure (y*y % m)
+	}
+	else {
+		 // n is odd ;
+		string b = enc(x, "1", m);
+		string a = enc(x, minusone(n), m);
+		return (multiply(a, b), "1", m);
+	}
+
+}
 string calcphi(string p, string q) {
 
 	return multiply(minusone(p), minusone(q));
@@ -344,12 +350,29 @@ string div_mod(string p, string q, bool div = true) {
 	return remove(subbig(p, multiply(q, divbig(p, q))));
 
 }
+string d2b(string input) {
+	string output = "";
+	string a;
+	int i = 0;
+	
+	input = div_mod(input, "2");
+
+	cout << input;
+	return input;
+}
 int main() {
 	
 	string p = "12369571528747655798110188786567180759626910465726920556567298659370399748072366507234899432827475865189642714067836207300153035059472237275816384410077871";
 	string q = "2065420353441994803054315079370635087865508423962173447811880044936318158815802774220405304957787464676771309034463560633713497474362222775683960029689473";
 	string pq = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336041031200174441223836394229943651678525471050219216183727749114047330431603023948126844573697946795476319956787513765533596926704755530772983549787878951983";
-	/* TESTS
+	
+	/* TESTS	
+	
+	clock_t t = clock();
+	d2b(p);
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
+
 	clock_t t = clock();
 	
 	cout << "testing multiply function 1 ..\n";
