@@ -267,16 +267,6 @@ string divbig(string a, string divisor) {
 	string d = divisor.substr(0, 1);
 	if (max_min(divisor, a) == 1) {
 		//a is bigger ok
-		for (unsigned int i = start_limit; i <= a.length(); i++) {
-			if (max_min(divisor, a.substr(0, i)) == 1) {
-				limit = i;
-				break;
-			}
-			else if (max_min(divisor, a.substr(0, i)) == 2) {
-				limit = i;
-				break;
-			}
-		}
 		unsigned int i = 1;
 		do {
 			k = stoi(a.substr(0, i)) / stoi(d);
@@ -314,7 +304,7 @@ string divbig(string a, string divisor) {
 		return co;
 	}
 
-	return final_co;
+	
 
 }
 
@@ -366,14 +356,13 @@ int main() {
 	string q = "2065420353441994803054315079370635087865508423962173447811880044936318158815802774220405304957787464676771309034463560633713497474362222775683960029689473";
 	string pq = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336041031200174441223836394229943651678525471050219216183727749114047330431603023948126844573697946795476319956787513765533596926704755530772983549787878951983";
 	
-	/* TESTS	
-	
+	/* TESTS	*/
 	clock_t t = clock();
 	d2b(p);
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 
-	clock_t t = clock();
+	t = clock();
 	
 	cout << "testing multiply function 1 ..\n";
 	test(mult_1(p, q), pq);
@@ -403,7 +392,8 @@ int main() {
 	string r = div_mod(p, q, false);
 	string original = addbig(multiply(co, q), r);
 	test(original, p);
-	*/
+
+	//	*/
 	
 	string command ="";
 	cin >> command;
