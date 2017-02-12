@@ -204,10 +204,8 @@ string remove(string a) {
 }
 //using recursive karatsuba method;
 string multiply(string x, string y) {
-	if(x.length()+y.length() <=9) return to_string((stoi(x)*stoi(y)));
-	/*if (x.length() <= 4 && y.length() <= 4) {
-		return to_string((stoi(x)*stoi(y)));
-	}*/
+	if(x.length()+y.length() <=18) return to_string((stoull(x)*stoull(y)));
+
 	string product;
 	int n1 = x.length();
 	int n2 = y.length();
@@ -361,7 +359,7 @@ int main() {
 	/* TESTS	*/
 #ifdef _test
 	clock_t t = clock();
-	d2b(p);
+	for (int i = 0; i < 1000;i++)  addbig(p, q);
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 

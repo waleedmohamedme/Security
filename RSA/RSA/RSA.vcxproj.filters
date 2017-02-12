@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\rsa - demo.cpp">
+    <ClCompile Include="bigunsignedinteger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
