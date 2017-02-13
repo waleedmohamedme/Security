@@ -262,7 +262,6 @@ public:
 		
 		return sum;
 	}
-	
 	bigint sub(bigint b, bool print = false) {
 		bigint final;
 		final.dirty = true;
@@ -586,6 +585,56 @@ public:
     return bigint(sum);
 
 	}
+	string divbig(string a, string divisor) {
+
+		string final_co = "";
+		string final_reminder = "";
+		string co = "";
+		long long k = 0.0;
+		//step 1
+		int start_limit = divisor.length();
+		int limit = 0;
+		string d = divisor.substr(0, 1);
+		if (max_min(divisor, a) == 1) {
+			//a is bigger ok
+			unsigned int i = 1;
+			do {
+				k = stoi(a.substr(0, i)) / stoi(d);
+				if (k == 0)
+				{
+					i++;
+				}
+				else {
+					co = to_string(k);
+					break;
+				}
+			} while (i <= a.length());
+
+			string product = remove(bigint(co).linear_mult(divisor).getinstring());
+			product = shift(product, a.length() - product.length());
+			if (max_min(product, a) == 0) {
+				k = k - 1;
+				co = to_string(k);
+				product = remove(bigint(co).linear_mult(divisor).getinstring());
+			}
+
+			string next = remove(subtruct(bigint(a), bigint(product)).getinstring());
+
+			return co + divbig(next, divisor);
+
+		}
+		else if (max_min(divisor, a) == 2) {
+			//same shit 
+			//co = 1;
+			co = "1";
+			return co;
+		}
+		else {
+			co = "";
+			return co;
+		}
+	}
+
 };
 int max_min(string a, string b, bool max = true) {
 	//if 0 >> a 
@@ -614,6 +663,15 @@ int max_min(string a, string b, bool max = true) {
 
 	return 2;
 }
+string remove(string a) {
+	if (a[0] != '0')
+		return a;
+	while (a[0] == '0') {
+
+		a = a.substr(1);
+	}
+	return a;
+}
 
 string subtruct(string a , string b ) {
 	int k = max_min(a, b);
@@ -628,7 +686,13 @@ string subtruct(string a , string b ) {
 		return "-"+ bigint(b).sub(bigint(a)).getinstring();
 	}
 }
+string div_mod(string p, string q, bool div = true) {
 
+	if (div == true) return bigint(p).divbig(p, q);
+
+	return remove((bigint(p).sub(bigint(q)).linear_mult( bigint(p).divbig(p, q))).getinstring());
+
+}
 void test(string p, string original) {
 	if (original == p) {
 		cout << "Correct Answer \n";
@@ -650,13 +714,18 @@ int main() {
 	string plus = "14434991882189650601164503865937815847492418889689094004379178704306717906888169281455304737785263329866414023102299767933866532533834460051500344439767344";
 	string minus = "10304151175305660995055873707196545671761402041764747108755418614434081589256563733014494127869688400512871405033372646666439537585110014500132424380388398";
 	bigint minus2(minus);
-
-	//string plus = "35005132";
-	
+	cout << div_mod("8896208", "2654");
 	bigint y(p);
-
 	bigint x(q);
 	bigint z(pq);
+	//string plus = "35005132";
+	string co = div_mod(p, q);
+	bigint coo(co);
+	string r = div_mod(p, q, false);
+
+	bigint original =(coo.linear_mult(x) ).add( bigint(r));
+	test(original.getinstring(), p);
+	
 
 	cout <<pq <<endl<<endl;
 	cout << y.linear_mult(x).getinstring() <<endl;
