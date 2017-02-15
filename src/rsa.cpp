@@ -436,7 +436,7 @@ public:
 	}
 	//unsigned divison
 	string unsigned_division(string a, string divisor, bool r = true) {
-
+		//if r == true >>> divison else reminder
 		vector<string> m;
 		string d = divisor.substr(0, 1);
 		int dd = stoi(d);
@@ -453,6 +453,11 @@ public:
 		if (max_min(leftover, divisor) == 2) {
 			result = "1";
 			leftover = "0";
+			if (!r)return leftover;
+			return result;
+		}
+		else if ((max_min(leftover, divisor) == 1)) {
+			result = "0";
 			if (!r)return leftover;
 			return result;
 		}
