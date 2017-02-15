@@ -34,8 +34,16 @@ public:
 	}
 	bigint(string value) {
 		integer = value;
-		bool positive = true;
-		
+		if (value.empty() == true) {
+			value = "0";
+		}
+		if (value[0] == '-') {
+			positive = false;
+			value = value.substr(1);
+		}
+		else {
+			positive = true;
+		}
 		int x = 7;
 
 		while (value.length()>0) {
@@ -51,6 +59,7 @@ public:
 
 
 	}
+	//deprecated -- feha  bug wkda kda msh used 
 	bigint(long long value) {
 		if (value < 0) {
 			positive = false;
@@ -83,7 +92,9 @@ public:
 
 	}
 	bigint(int value) {
-
+		if (value == 0) {
+			integer = "0";
+		}
 		if (value < 0) {
 			positive = false;
 			value = value*(-1);
@@ -106,7 +117,7 @@ public:
 		if (!dirty) {
 			//	return integer;
 		}
-
+	
 		integer = "";
 		string zeros = "00000000000000000";
 		string temp_string;
@@ -224,6 +235,30 @@ public:
 	unsigned long long getnum() {
 		return stoull(integer);
 	}
+	//signed add
+	bigint add(bigint a, bigint b) {
+		if (a.positive == false && b.positive == false) {
+			//-(b+a)
+			bigint r = a.add(b);
+			r.positive = false;
+			return r;
+		}
+		if (a.positive == true && b.positive == false) {
+			//a-b
+			bigint newb = b;
+			newb.positive = true;
+			return subtruct(a, newb);
+		}
+		if (b.positive == true && a.positive == false) {
+			//b-a
+			bigint newa = a;
+			newa.positive = true;
+			return subtruct(b, newa);
+		}
+
+		return a.add(b);
+	}
+	//unsigned add	
 	bigint add(bigint b, bool print = false) {
 		bigint sum;
 		sum.dirty = true;
@@ -257,6 +292,45 @@ public:
 
 		return sum;
 	}
+	//signed subtract 
+	bigint subtruct(bigint a, bigint b) {
+		if (a.positive == false && b.positive == false) {
+			//b-a
+			bigint newb = b;
+			newb.positive = true;
+			return subtruct(newb, a);
+		}
+		if (a.positive == true && b.positive == false) {
+			//a--b == a+b
+			return a.add(b);
+		}
+		if (b.positive == true && a.positive == false) {
+			//-a-b == -(a+b)
+			bigint r = a.add(b);
+			r.positive = false;
+			return r;
+		}
+		// +v - +v 
+		int k = max_min(a.getinstring(), b.getinstring());
+		if (k == 2) {
+			//both equal 
+			return bigint(0);
+		}
+		else if (k == 0) {
+			//a is bigger 
+			bigint r = a.sub((b));
+			r.positive = true;
+			return r;
+
+		}
+		else {
+			//b is bigger 
+			bigint r = (b).sub((a));
+			r.positive = false;
+			return  r;
+		}
+	}
+	//unsigned subtract
 	bigint sub(bigint b, bool print = false) {
 		bigint final;
 		final.dirty = true;
@@ -325,6 +399,163 @@ public:
 		return final;
 
 	}
+	//unsigned multiply
+	bigint linear_mult(bigint bb) {
+
+		string output = "";
+		int m = 1;
+		string sum = "";
+		for (int i = 0; i <number.size(); i++) {
+
+			unsigned long long carry = 0;
+
+			for (int j = 0; j <bb.number.size(); j++) {
+				unsigned long long multi = (number[i] * bb.number[j]) + carry;
+				unsigned long long res = multi % 10000000;
+				carry = multi / 10000000;
+				string re = to_string(res);
+				if (to_string(res).length() < 7) {
+					for (int i = 0; i < 7 - to_string(res).length(); i++) {
+						re.insert(0, "0");
+					}
+				}
+				output.insert(0, re);
+			}
+			if (carry != 0)
+				output.insert(0, to_string(carry));
+			//cout << "======"<<endl;
+			for (int x = m - 1; x>0; x--)
+				output = output + "0000000";
+			//cout <<m <<"    " <<output<<endl;
+			sum = add_string(sum, (output));
+			output = "";
+			m++;
+		}
+		return bigint(sum);
+
+	}
+	//unsigned divison
+	string unsigned_division(string a, string divisor, bool r = true) {
+
+		vector<string> m;
+		string d = divisor.substr(0, 1);
+		int dd = stoi(d);
+		string answer = "";
+		int j = divisor.length();
+		string aa;
+		string tobesubbed;
+		m.push_back(divisor);
+		m.push_back(bigint("2").linear_mult(bigint(divisor)).getinstring());
+		m.push_back(bigint("4").linear_mult(bigint(divisor)).getinstring());
+		m.push_back(bigint("8").linear_mult(bigint(divisor)).getinstring());
+		string leftover = a;
+		string result = "", tempresult = "", zeros = "";
+		if (max_min(leftover, divisor) == 2) {
+			result = "1";
+			leftover = "0";
+			if (!r)return leftover;
+			return result;
+		}
+		while (max_min(leftover, divisor) == 0) {
+
+			int i = 0;
+			int k = 0;
+			while (i < leftover.length() && k == 0) {
+				k = stoi(leftover.substr(0, ++i)) / dd;
+			}
+			int ll = 0;
+			if (k >= 8) {
+				aa = "8";
+				ll = 3;
+				tobesubbed = m[3];
+			}
+			else if (k >= 4) {
+				aa = "4"; ll = 2;
+				tobesubbed = m[2];
+			}
+			else if (k >= 2) {
+				aa = "2"; ll = 1;
+				tobesubbed = m[1];
+			}
+			else if (k >= 1) {
+				aa = "1"; ll = 0;
+				tobesubbed = m[0];
+			}
+
+			zeros = "";
+			if (max_min(tobesubbed, leftover) == 0) {
+				tobesubbed = m[--ll];
+			}
+			for (i = 0; i < (leftover.length() - tobesubbed.length()); i++) zeros.append("0");
+			if (max_min(tobesubbed + zeros, leftover) == 0) {
+				zeros = zeros.substr(0, zeros.length() - 1);
+			}
+			tobesubbed = tobesubbed + zeros;
+			leftover = remove(subtruct(bigint(leftover), bigint(tobesubbed)).getinstring());
+			if (ll == 3) {
+				aa = "8";
+
+			}
+			else if (ll == 2) {
+				aa = "4";
+			}
+			else if (ll == 1) {
+				aa = "2";
+			}
+			else if (ll == 0) {
+				aa = "1";
+			}
+
+			tempresult = aa + zeros;
+			result = add(bigint(result), bigint(tempresult)).getinstring();
+		}
+		if (!r)return leftover;
+		return result;
+	}
+	//signed division
+	bigint divide(bigint bb, bool div = true) {
+		string a = getinstring();
+		string b = bb.getinstring();
+		bool aa_positive = (*this).positive;
+		bool bb_positive = bb.positive;
+		bool result_sign;
+		string co_r;
+		if (div) {
+			co_r = unsigned_division(a, b);
+		}
+		else {
+			co_r = unsigned_division(a, b, false);
+		}
+
+
+		if ((aa_positive && bb_positive) || (!bb_positive && !aa_positive)) {
+			result_sign = true;
+		}
+		else {
+			result_sign = false;
+		}
+		bigint result(co_r);
+		result.positive = result_sign;
+		return result;
+
+	}
+	//signed multiply
+	bigint Multiply(bigint bb) {
+		bool aa_positive = (*this).positive;
+		bool bb_positive = bb.positive;
+		bool result_sign;
+		if ((aa_positive && bb_positive) || (!bb_positive && !aa_positive)) {
+			result_sign = true;
+		}
+		else {
+			result_sign = false;
+		}
+		bigint result = (*this).linear_mult(bb);
+		result.positive = result_sign;
+
+		return result;
+	}
+	
 	bigint remove(bigint a) {
 
 		if (a.number[a.number.size() - 1] != 0)
@@ -367,23 +598,6 @@ public:
 		else {
 			for (int i = 0; i < units; i++) {
 				input.insert(0, "00000000");
-			}
-			return input;
-
-		}
-
-	}
-	string shift_div(string input, int units, bool left = true) {
-
-		if (left) {
-			for (int i = 0; i < units; i++) {
-				input.append("0");
-			}
-			return input;
-		}
-		else {
-			for (int i = 0; i < units; i++) {
-				input.insert(0, "0");
 			}
 			return input;
 
@@ -433,62 +647,8 @@ public:
 
 		return 2;
 	}
-
-	bigint subtruct(bigint a, bigint b) {
-		if (a.positive == false && b.positive == false) {
-			//b-a
-			bigint newb = b;
-			newb.positive = true;
-			return subtruct(newb, a);
-		}
-		if (a.positive == true && b.positive == false) {
-			return a.add(b);
-		}
-		if (b.positive == true && a.positive == false) {
-			bigint r = a.add(b);
-			r.positive = false;
-			return r;
-		}
-
-		int k = max_min(a.getinstring(), b.getinstring());
-		if (k == 2) {
-			return bigint(0);
-		}
-		else if (k == 0) {
-			return bigint(a).sub(bigint(b));
-
-		}
-		else {
-			bigint r = bigint(b).sub(bigint(a));
-			r.positive = false;
-			return  r;
-		}
-	}
-	bigint add(bigint a, bigint b) {
-		if (a.positive == false && b.positive == false) {
-			//-(b+a)
-			bigint r = a.add(b);
-			r.positive = false;
-			return r;
-			bigint newb = b;
-			newb.positive = true;
-			return subtruct(newb, a);
-		}
-		if (a.positive == true && b.positive == false) {
-			bigint newb = b;
-			newb.positive = true;
-			return subtruct(a, newb);
-		}
-		if (b.positive == true && a.positive == false) {
-			bigint newa = a;
-			newa.positive = true;
-			return subtruct(b, newa);
-		}
-
-		return a.add(b);
-	}
 	
-	bigint multiply(bigint bb, bool print = false) {
+	bigint multiply_kara(bigint bb, bool print = false) {
 		if (number.size() + bb.number.size() <= 2) {
 			if (to_string(number[0]).length() + to_string(bb.number[0]).length() <= 15) {
 				return bigint(number[0] * bb.number[0]);
@@ -509,12 +669,12 @@ public:
 		bigint d(bb, 0, n);
 		bigint c(bb, n);
 
-		bigint ac = a.multiply(c);
-		bigint bd = b.multiply(d);
+		bigint ac = a.multiply_kara(c);
+		bigint bd = b.multiply_kara(d);
 
 		bigint ab = (a.add(b));
 		bigint cd = (c.add(d));
-		bigint abcd = ab.multiply(cd);
+		bigint abcd = ab.multiply_kara(cd);
 
 		abcd = remove(subtruct(abcd, ac));
 		abcd = remove(subtruct(abcd, bd));
@@ -526,179 +686,37 @@ public:
 
 		return product;
 	}
-	bigint linear_mult(bigint bb) {
+	bigint phin( bigint b) {
+		return (subtruct((*this), bigint(1)).Multiply(subtruct(b, bigint(1))));
+	}
+	bigint calculate_n(bigint b) {
+		return ((*this).Multiply(b));
+	}
+	//////fixes
+	/*
+	string enc(string x, string n, string m) {
 
-		string output = "";
-		int m = 1;
-		string sum = "";
-		for (int i = 0; i <number.size(); i++) {
-
-			unsigned long long carry = 0;
-
-			for (int j = 0; j <bb.number.size(); j++) {
-				unsigned long long multi = (number[i] * bb.number[j]) + carry;
-				unsigned long long res = multi % 10000000;
-				carry = multi / 10000000;
-				string re = to_string(res);
-				if (to_string(res).length() < 7) {
-					for (int i = 0; i < 7 - to_string(res).length(); i++) {
-						re.insert(0, "0");
-					}
-				}
-				output.insert(0, re);
-			}
-			if (carry != 0)
-				output.insert(0, to_string(carry));
-			//cout << "======"<<endl;
-			for (int x = m - 1; x>0; x--)
-				output = output + "0000000";
-			//cout <<m <<"    " <<output<<endl;
-			sum = add_string(sum, (output));
-			output = "";
-			m++;
+		if (remove(n) == "0") {
+			return "1";
 		}
-		return bigint(sum);
 
-	}
-	string divbig(string a, string divisor,bool first =true) {
-
-		vector<string> m;
-		string d = divisor.substr(0, 1);
-		int dd = stoi(d);
-		string answer = "";
-		int j = divisor.length();
-		string aa ;
-		string tobesubbed;
-		m.push_back( divisor );
-		m.push_back(bigint("2").linear_mult(bigint(divisor)).getinstring());
-		m.push_back(bigint("4").linear_mult(bigint(divisor)).getinstring());
-		m.push_back(bigint("8").linear_mult(bigint(divisor)).getinstring());
-		string leftover = a;
-		string result="", tempresult = "", zeros = "";
-		while (max_min(leftover, divisor) == 0) {
-			
-			int i = 0;
-			int k = 0;
-			while (i < leftover.length() && k == 0) {
-				k = stoi(leftover.substr(0, ++i)) / dd;
-			}
-			int ll = 0;
-			if (k >= 8) {
-				aa = "8";
-				ll = 3;
-				tobesubbed = m[3];
-			}
-			else if (k >= 4) {
-				aa = "4"; ll = 2;
-				tobesubbed = m[2];
-			}
-			else if (k >= 2) {
-				aa = "2"; ll = 1;
-				tobesubbed = m[1];
-			}
-			else if (k >= 1) {
-				aa = "1"; ll = 0;
-				tobesubbed = m[0];
-			}
-
-			zeros = "";
-			if (max_min(tobesubbed , leftover) == 0) {
-				tobesubbed = m[--ll];
-			}
-			for (i = 0; i < (leftover.length() - tobesubbed.length()); i++) zeros.append("0");
-			if (max_min(tobesubbed+zeros, leftover) == 0) {
-				zeros = zeros.substr(0, zeros.length() - 1);
-			}
-			tobesubbed = tobesubbed + zeros;
-			leftover = remove(subtruct(bigint(leftover), bigint(tobesubbed)).getinstring());
-			if (ll==3) {
-				aa = "8";
-				
-			}
-			else if (ll==2) {
-				aa = "4";
-			}
-			else if (ll==1) {
-				aa = "2"; 
-			}
-			else if (ll ==0) {
-				aa = "1"; 
-			}
-
-			tempresult = aa + zeros;
-			result = add(bigint(result), bigint(tempresult)).getinstring();
+		if (remove(divbig(n, "2")) == "" || remove(divbig(n, "2")) == "0") {
+			//even n ;
+			string y = enc(x, remove(divbig(n, "2")), m);
+			return enc(multiply(y, y), "1", m);//to be checked not sure (y*y % m)
 		}
-		if (!first)return leftover;
-		return result;
+		else {
+			// n is odd ;
+			string b = enc(x, "1", m);
+			string a = enc(x, minusone(n), m);
+			return (multiply(a, b), "1", m);
+		}
+
 	}
-	bigint divide(bigint bb ,bool div=true) {
-		string a = getinstring();
-		string b = bb.getinstring();
-		string result = divbig(a, b);
-		//sign condtions 
-		//cout <<endl << result << endl;
-		if (div == true) return bigint(result);
-		return (*this).sub(bigint(result).linear_mult(bb));;
-	}
+	*/
 };
-int max_min(string a, string b, bool max = true) {
-	//if 0 >> a 
-	//if 1 >> b 
-	//if 2 equal
-	if (a.length() > b.length()) {
-		if (max) { return 0; }
-		return 1;
-	}
-	else if (b.length() > a.length()) {
-		if (max) { return 1; }
-		return 0;
-	}
-	else {
-		for (unsigned int i = 0; i < a.length() - 1; i++) {
-			if (a[i] > b[i]) {
-				if (max) { return 0; }
-				return 1;
-			}
-			else if (a[i] < b[i]) {
-				if (max) { return 1; }
-				return 0;
-			}
-		}
-	}
 
-	return 2;
-}
-string remove(string a) {
-	if (a[0] != '0')
-		return a;
-	while (a[0] == '0') {
 
-		a = a.substr(1);
-	}
-	return a;
-}
-
-string subtruct(string a, string b) {
-	int k = max_min(a, b);
-	if (k == 2) {
-		return "0";
-	}
-	else if (k == 0) {
-		return bigint(a).sub(bigint(b)).getinstring();
-
-	}
-	else {
-		return "-" + bigint(b).sub(bigint(a)).getinstring();
-	}
-}
-/*
-string div_mod(string p, string q, bool div = true) {
-
-	if (div == true) return bigint(p).divide(bigint(q));
-
-	return remove((bigint(p).sub(bigint(q)).linear_mult(bigint(p).divbig(p, q))).getinstring());
-
-}*/
 void test(string p, string original) {
 	if (original == p) {
 		cout << "Correct Answer \n";
@@ -713,16 +731,11 @@ int main() {
 	string pq = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336041031200174441223836394229943651678525471050219216183727749114047330431603023948126844573697946795476319956787513765533596926704755530772983549787878951983";
 	string plus = "14434991882189650601164503865937815847492418889689094004379178704306717906888169281455304737785263329866414023102299767933866532533834460051500344439767344";
 	string minus = "10304151175305660995055873707196545671761402041764747108755418614434081589256563733014494127869688400512871405033372646666439537585110014500132424380388398";
-
-
-	//p = "12369571";
-	//q = "2065420";
-	//p = "5953191492";
-	//q = "62182";
-	//  pq= "74074074074073925925925925926";
-	//	p = "1234506700891999";
-	//	q = "1234506700891999";
-	//	pq = "15241556995136506682262216001";
+	string phi = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336026596208292251573235229726077713862677978631329527089723369935343023713696135778845389268960161532146453542764411465765663060172221696312932049443439184640";
+	
+	p = "1234506700891999";
+	q = "1234506700891999";
+	pq = "15241556995136506682262216001";
 	bigint x(p);
 	bigint y(q);
 	bigint xy(pq);
@@ -735,17 +748,20 @@ int main() {
 	bigint r = x.divide(y,false);
 	bigint original =(coo.linear_mult(y)).add((r));
 	cout << coo.getinstring()<<endl<<p<<endl;
+	cout << endl << "Test divison reminder using recomposition" << endl;
 	test(original.getinstring(), p);
-	
-
-	//x.divide(y);
-	//cout << pq << endl << endl;
-	//cout << x.linear_mult(y).getinstring() << endl;
+	cout << endl << "Test calculate n"<<endl;
+	test(x.calculate_n(y).getinstring(), pq);
+	cout << endl << "Test calculate Phi(n)" << endl;
+	test(x.phin(y).getinstring(), phi);
 	clock_t t = clock();
-	for (int i = 0; i < 1000; i++) x.linear_mult(y);;
+	for (int i = 0; i < 1000; i++) x.Multiply(y);;
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
-
+	 t = clock();
+	for (int i = 0; i < 1000; i++) x.divide(y);;
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	
 	cout << "end....\n";
 	return 0;
