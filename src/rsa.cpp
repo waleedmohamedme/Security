@@ -136,6 +136,10 @@ public:
 		integer = to_string(number[number.size() - 1]) + integer.substr(7);
 		dirty = false;
 		//cout << integer << endl;
+		if (integer.empty()) {
+			integer = "0";
+			number.push_back(0);
+		}
 		return integer;
 	}
 	void print() {cout << getinstring() << endl;}
@@ -293,7 +297,47 @@ public:
 		return sum;
 	}
 	//signed subtract 
+	bigint subtruct( bigint b) {
+		bigint a = (*this);
+		if (a.positive == false && b.positive == false) {
+			//b-a
+			bigint newb = b;
+			newb.positive = true;
+			return subtruct(newb, a);
+		}
+		if (a.positive == true && b.positive == false) {
+			//a--b == a+b
+			return a.add(b);
+		}
+		if (b.positive == true && a.positive == false) {
+			//-a-b == -(a+b)
+			bigint r = a.add(b);
+			r.positive = false;
+			return r;
+		}
+		// +v - +v 
+		int k = max_min(a.getinstring(), b.getinstring());
+		if (k == 2) {
+			//both equal 
+			return bigint(0);
+		}
+		else if (k == 0) {
+			//a is bigger 
+			bigint r = a.sub((b));
+			r.positive = true;
+			return r;
+
+		}
+		else {
+			//b is bigger 
+			bigint r = (b).sub((a));
+			r.positive = false;
+			return  r;
+		}
+	}
+
 	bigint subtruct(bigint a, bigint b) {
+		
 		if (a.positive == false && b.positive == false) {
 			//b-a
 			bigint newb = b;
@@ -514,6 +558,10 @@ public:
 			tempresult = aa + zeros;
 			result = add(bigint(result), bigint(tempresult)).getinstring();
 		}
+		if (leftover == divisor) {
+			result = add(bigint(leftover), bigint("1")).getinstring();
+			leftover = "0";
+		}
 		if (!r)return leftover;
 		return result;
 	}
@@ -697,6 +745,60 @@ public:
 	bigint calculate_n(bigint b) {
 		return ((*this).Multiply(b));
 	}
+	bigint extended_euclidian(bigint e, bigint mod) {
+		bigint A1, A2, A3, B1, B2, B3;
+		bigint A2_next, A3_next, B2_next, B3_next;
+		bigint Q;
+		A2=(bigint("0"));
+		A3 = mod;
+		B2 = (bigint("1"));
+		B3 = e;
+
+		while (B3.getinstring() != "1"  && B3.getinstring() != "0") {
+			A2_next = B2;
+			A3_next = B3;
+			Q = A3.divide(B3);
+			B2 = subtruct(A2,Q.Multiply(B2));
+			B3 = A3.divide(B3, false);//A3%B3;
+			if (B3.getinstring() == "1") {
+				return B2;
+			}
+			A2 = A2_next;
+			A3 = A3_next;
+		}
+	}
+	bigint expo_mod(bigint message, bigint e, bigint mod) {
+		//e=0 message^0
+		if (e.getinstring() == "0") {
+			return bigint("1");
+		}
+		if (e.getinstring() == "1" || e.getinstring() == "1") {
+			return message.divide(mod,false);
+		}
+		if (e.divide(bigint("2"),false).getinstring() == "" || e.divide(bigint("2"),false).getinstring() == "0") {
+			//even n ;
+			bigint y = expo_mod(message, e.divide(bigint("2")), mod);
+			return expo_mod(y.Multiply(y), bigint("1"), mod);
+		}
+		else {
+			// n is odd ;
+			
+			bigint b = expo_mod(message, bigint("1"), mod);
+			bigint a = expo_mod(message, subtruct(e,bigint("1")), mod);
+			return expo_mod(a.Multiply(b), bigint("1"), mod);
+		}
+
+	}
+	bigint encrypt(bigint e, bigint mod) {
+
+		return expo_mod((*this), e, mod);
+	}
+	bigint decrypt(bigint e, bigint phin,bigint n) {
+		return expo_mod((*this), e.inverse(phin), n);
+	}
+	bigint inverse( bigint mod) {
+		return extended_euclidian((*this), mod);
+	}
 	//////fixes
 	/*
 	string enc(string x, string n, string m) {
@@ -738,6 +840,18 @@ int main() {
 	string minus = "10304151175305660995055873707196545671761402041764747108755418614434081589256563733014494127869688400512871405033372646666439537585110014500132424380388398";
 	string phi = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336026596208292251573235229726077713862677978631329527089723369935343023713696135778845389268960161532146453542764411465765663060172221696312932049443439184640";
 	
+	bigint b(550);
+	bigint m(1759);
+
+	
+
+	bigint message("88");
+	bigint e(bigint("7"));
+	bigint mod(bigint("187"));
+	cout << message.encrypt(e, mod).getinstring()<<endl;
+	cout << e.getinstring() << endl;
+	bigint c = message.encrypt(e, mod);
+
 	//p = "1234506700891999";
 	//q = "1234506700891999";
 	//pq = "15241556995136506682262216001";
