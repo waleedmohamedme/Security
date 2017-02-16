@@ -796,6 +796,9 @@ public:
 	bigint decrypt(bigint e, bigint phin,bigint n) {
 		return expo_mod((*this), e.inverse(phin), n);
 	}
+	bigint decrypt(bigint d, bigint mod) {
+		return expo_mod((*this), d, mod);
+	}
 	bigint inverse( bigint mod) {
 		return extended_euclidian((*this), mod);
 	}
@@ -839,30 +842,43 @@ int main() {
 	string plus = "14434991882189650601164503865937815847492418889689094004379178704306717906888169281455304737785263329866414023102299767933866532533834460051500344439767344";
 	string minus = "10304151175305660995055873707196545671761402041764747108755418614434081589256563733014494127869688400512871405033372646666439537585110014500132424380388398";
 	string phi = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336026596208292251573235229726077713862677978631329527089723369935343023713696135778845389268960161532146453542764411465765663060172221696312932049443439184640";
-	
+	string E = "65537";
+	string d = "25051719899710729069339146813050963409059898810366373119834423967819636191509401691818253978210229371822961344590338934536803264841097247978074700319812702399440521918349189245279566231685265955731649745935378380489722580113725907099133943430294137060596724659637599737926649148356615085679203385772673944833";
+	string ec_88 = "4397678428390379126255360246165021910057442267382175543246817108158797115317154540746718616555865161372450860559307149988169566508274711121236049281217144195628407516579953387138808449458611836421032431582081899650685651973204503916459595600207918950383877057152533041873901965623112895996177941667469292738";
+
 	bigint b(550);
 	bigint m(1759);
 
+
+	bigint e(E);
+	//bigint xy(pq);
+	bigint minus2(minus);
+		
 	
-
-	bigint message("88");
-	bigint e(bigint("7"));
-	bigint mod(bigint("187"));
-	cout << message.encrypt(e, mod).getinstring()<<endl;
-	cout << e.getinstring() << endl;
-	bigint c = message.encrypt(e, mod);
-
-	//p = "1234506700891999";
-	//q = "1234506700891999";
-	//pq = "15241556995136506682262216001";
+	clock_t t = clock();
 	bigint x(p);
 	bigint y(q);
-	bigint xy(pq);
-	bigint minus2(minus);
-	//cout << div_mod("8896208", "2654");
+	bigint message("88");
+	cout << "TEST N " << endl;
+	bigint xy = x.Multiply(y);
+	test(pq, xy.getinstring());
+	bigint pphii = x.subtruct(bigint("1")).Multiply(y.subtruct(bigint("1")));
+	cout << "TEST PHI " << endl;
+	test(phi, pphii.getinstring());
+	bigint ecc = message.encrypt(e, xy);
+	cout << "TEST ecryption of 88 " << endl;
+	test(ec_88, ecc.getinstring());
+	cout << "TEST inverse of e " << endl;
+	bigint d_k(d);
+	bigint dd = e.inverse(pphii);
+	test(dd.getinstring(), d);
+	cout << "TEST decryption" << endl;
+	bigint dec = ecc.decrypt(d_k,xy);
+	test(dec.getinstring(), "88");
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 
-	//string plus = "35005132";
-	string co = x.divide(y).getinstring();
+
 	bigint coo = x.divide(y);
 	bigint r = x.divide(y,false);
 	bigint original =(coo.linear_mult(y)).add((r));
@@ -873,7 +889,7 @@ int main() {
 	test(x.calculate_n(y).getinstring(), pq);
 	cout << endl << "Test calculate Phi(n)" << endl;
 	test(x.phin(y).getinstring(), phi);
-	clock_t t = clock();
+	t = clock();
 	for (int i = 0; i < 1000; i++) x.Multiply(y);;
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
