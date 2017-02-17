@@ -766,26 +766,62 @@ public:
 		return ((*this).Multiply(b));
 	}
 	bigint extended_euclidian(bigint e, bigint mod) {
-		bigint A1, A2, A3, B1, B2, B3;
+		bigint  A2, A3, B2, B3;
 		bigint A2_next, A3_next, B2_next, B3_next;
 		bigint Q;
 		A2=(bigint("0"));
 		A3 = mod;
 		B2 = (bigint("1"));
 		B3 = e;
-
+		while (true) {
+			if (B3.getinstring() == "0") {
+				return e.makepostive(mod);
+				cout << "\nhas no inverse\n";
+			}
+			if (B3.getinstring() == "1") {
+				return B2.makepostive(mod);
+			}
+			Q = A3.divide(B3);
+			B2_next = subtruct(A2, Q.Multiply(B2));
+			B3_next = A3.divide(B3, false);//A3%B3;
+			A2 = B2;
+			A3 = B3;
+			B2 = B2_next;
+			B3 = B3_next;
+		}
+		
+		/*
+		cout << "\n initial A2 :\n" << A2.getinstring();
+		cout << "\n initial A3 :\n" << A3.getinstring();
+		cout << "\n initial B2 :\n" << B2.getinstring();
+		cout << "\n initial B3 :\n" << B3.getinstring();
+		//cout << "\n#####################\n";
 		while (B3.getinstring() != "1"  && B3.getinstring() != "0") {
 			A2_next = B2;
 			A3_next = B3;
 			Q = A3.divide(B3);
 			B2 = subtruct(A2,Q.Multiply(B2));
 			B3 = A3.divide(B3, false);//A3%B3;
+			cout << "\n  Q :\n"; if (!Q.positive)cout << "-"; cout << Q.getinstring();
+			cout << "\n  A2 :\n"; if (!A2_next.positive)cout << "-"; cout << A2_next.getinstring();
+			cout << "\n  A3 :\n"; if (!A3_next.positive)cout << "-"; cout << A3_next.getinstring();
+			cout << "\n  B2 :\n"; if (!B2.positive)cout << "-"; cout << B2.getinstring();
+			cout << "\n  B3 :\n"; if (!B3.positive)cout << "-"; cout << B3.getinstring();
+			
+			cout << "\n#####################\n";
 			if (B3.getinstring() == "1") {
-				return B2;
+				return B2.makepostive(mod);
 			}
 			A2 = A2_next;
 			A3 = A3_next;
+		}*/
+	}
+	bigint makepostive(bigint mod) {
+		
+		while (!positive) {
+			(*this) = add((*this),mod);
 		}
+		return (*this);
 	}
 	bigint expo_mod(bigint message, bigint e, bigint mod) {
 		//e=0 message^0
@@ -822,28 +858,7 @@ public:
 	bigint inverse( bigint mod) {
 		return extended_euclidian((*this), mod);
 	}
-	//////fixes
-	/*
-	string enc(string x, string n, string m) {
-
-		if (remove(n) == "0") {
-			return "1";
-		}
-
-		if (remove(divbig(n, "2")) == "" || remove(divbig(n, "2")) == "0") {
-			//even n ;
-			string y = enc(x, remove(divbig(n, "2")), m);
-			return enc(multiply(y, y), "1", m);//to be checked not sure (y*y % m)
-		}
-		else {
-			// n is odd ;
-			string b = enc(x, "1", m);
-			string a = enc(x, minusone(n), m);
-			return (multiply(a, b), "1", m);
-		}
-
-	}
-	*/
+	
 };
 
 
@@ -866,11 +881,25 @@ int main() {
 	string d = "25051719899710729069339146813050963409059898810366373119834423967819636191509401691818253978210229371822961344590338934536803264841097247978074700319812702399440521918349189245279566231685265955731649745935378380489722580113725907099133943430294137060596724659637599737926649148356615085679203385772673944833";
 	string ec_88 = "4397678428390379126255360246165021910057442267382175543246817108158797115317154540746718616555865161372450860559307149988169566508274711121236049281217144195628407516579953387138808449458611836421032431582081899650685651973204503916459595600207918950383877057152533041873901965623112895996177941667469292738";
 
-	bigint e(E);
-	bigint minus2(minus);
-		
 	
+	bigint minus2(minus);
+	/*p = "77";
+	q = "3";
+	E = "5";	
+	d = "61";
+	pq = "231";
+	phi = "152";
+	ec_88 = "121";*/
+	string calcres = "4139812100905";
+	bigint a = bigint("655537").inverse(bigint("5218765875123"));
+//	bigint a = bigint("14").inverse(bigint("103"));
+
+	cout << a.getinstring()<<endl;
+	/*
 	clock_t t = clock();
+	bigint e(E);
+	cout << e.Multiply(e.inverse(bigint(phi))).getinstring();
+	cout << endl << endl;
 	bigint x(p);
 	bigint y(q);
 	bigint message("88");
@@ -881,15 +910,26 @@ int main() {
 	cout << "TEST PHI " << endl;
 	test(phi, pphii.getinstring());
 	bigint ecc = message.encrypt(e, xy);
+
+
 	cout << "TEST ecryption of 88 " << endl;
 	test(ec_88, ecc.getinstring());
+
+
 	cout << "TEST inverse of e " << endl;
 	bigint d_k(d);
 	bigint dd = e.inverse(pphii);
 	test(dd.getinstring(), d);
-	cout << "TEST decryption" << endl;
-	bigint dec = ecc.decrypt(d_k,xy);
+
+	cout << "TEST decryption 1" << endl;
+	bigint dec = ecc.decrypt(dd,xy);
 	test(dec.getinstring(), "88");
+
+
+	cout << "TEST decryption 2" << endl;
+	dec = ecc.decrypt(dd, xy);
+	test(dec.getinstring(), "88");
+	cout << "\n\n decrypted again > : " << dec.getinstring() << "\n\n";
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	cout << endl << pq.length() << endl;
@@ -913,6 +953,6 @@ int main() {
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	
-	cout << "end....\n";
+	cout << "end....\n";*/
 	return 0;
 }
