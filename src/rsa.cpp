@@ -512,6 +512,9 @@ public:
 			while (i < leftover.length() && k == 0) {
 				k = stoi(leftover.substr(0, ++i)) / dd;
 			}
+			/*test modification*/
+		
+			/*end test modification*/
 			int ll = 0;
 			if (k >= 8) {
 				aa = "8";
@@ -663,6 +666,23 @@ public:
 			return a;
 		}
 		return shift(a, amount, false);
+
+	}
+	string shift_2(string input, int units, bool left = true) {
+
+		if (left) {
+			for (int i = 0; i < units; i++) {
+				input.append("0");
+			}
+			return input;
+		}
+		else {
+			for (int i = 0; i < units; i++) {
+				input.insert(0, "0");
+			}
+			return input;
+
+		}
 
 	}
 
@@ -846,12 +866,7 @@ int main() {
 	string d = "25051719899710729069339146813050963409059898810366373119834423967819636191509401691818253978210229371822961344590338934536803264841097247978074700319812702399440521918349189245279566231685265955731649745935378380489722580113725907099133943430294137060596724659637599737926649148356615085679203385772673944833";
 	string ec_88 = "4397678428390379126255360246165021910057442267382175543246817108158797115317154540746718616555865161372450860559307149988169566508274711121236049281217144195628407516579953387138808449458611836421032431582081899650685651973204503916459595600207918950383877057152533041873901965623112895996177941667469292738";
 
-	bigint b(550);
-	bigint m(1759);
-
-
 	bigint e(E);
-	//bigint xy(pq);
 	bigint minus2(minus);
 		
 	
@@ -877,7 +892,7 @@ int main() {
 	test(dec.getinstring(), "88");
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
-
+	cout << endl << pq.length() << endl;
 
 	bigint coo = x.divide(y);
 	bigint r = x.divide(y,false);
