@@ -4,7 +4,7 @@
 #include <string>
 #include <deque>
 using namespace std;
-
+int rounds = 0;
 class bigint {
 private:
 
@@ -293,7 +293,7 @@ public:
 				carry = (m / po) ? 1 : 0;
 			}
 		}
-
+		if(carry)sum.number.push_back(carry);
 		return sum;
 	}
 	//signed subtract 
@@ -538,7 +538,9 @@ public:
 			if (max_min(tobesubbed, leftover) == 0) {
 				tobesubbed = m[--ll];
 			}
-			for (i = 0; i < (leftover.length() - tobesubbed.length()); i++) zeros.append("0");
+
+			//for (i = 0; i < (leftover.length() - tobesubbed.length()); i++) zeros.append("0");
+			zeros.append((leftover.length() - tobesubbed.length()), '0');
 			if (max_min(tobesubbed + zeros, leftover) == 0) {
 				zeros = zeros.substr(0, zeros.length() - 1);
 			}
@@ -562,7 +564,7 @@ public:
 			result = add(bigint(result), bigint(tempresult)).getinstring();
 		}
 		if (leftover == divisor) {
-			result = add(bigint(leftover), bigint("1")).getinstring();
+			result = add(result, bigint("1")).getinstring();
 			leftover = "0";
 		}
 		if (!r)return leftover;
@@ -789,32 +791,6 @@ public:
 			B2 = B2_next;
 			B3 = B3_next;
 		}
-		
-		/*
-		cout << "\n initial A2 :\n" << A2.getinstring();
-		cout << "\n initial A3 :\n" << A3.getinstring();
-		cout << "\n initial B2 :\n" << B2.getinstring();
-		cout << "\n initial B3 :\n" << B3.getinstring();
-		//cout << "\n#####################\n";
-		while (B3.getinstring() != "1"  && B3.getinstring() != "0") {
-			A2_next = B2;
-			A3_next = B3;
-			Q = A3.divide(B3);
-			B2 = subtruct(A2,Q.Multiply(B2));
-			B3 = A3.divide(B3, false);//A3%B3;
-			cout << "\n  Q :\n"; if (!Q.positive)cout << "-"; cout << Q.getinstring();
-			cout << "\n  A2 :\n"; if (!A2_next.positive)cout << "-"; cout << A2_next.getinstring();
-			cout << "\n  A3 :\n"; if (!A3_next.positive)cout << "-"; cout << A3_next.getinstring();
-			cout << "\n  B2 :\n"; if (!B2.positive)cout << "-"; cout << B2.getinstring();
-			cout << "\n  B3 :\n"; if (!B3.positive)cout << "-"; cout << B3.getinstring();
-			
-			cout << "\n#####################\n";
-			if (B3.getinstring() == "1") {
-				return B2.makepostive(mod);
-			}
-			A2 = A2_next;
-			A3 = A3_next;
-		}*/
 	}
 	bigint makepostive(bigint mod) {
 		
@@ -823,7 +799,9 @@ public:
 		}
 		return (*this);
 	}
+	
 	bigint expo_mod(bigint message, bigint e, bigint mod) {
+		rounds++;
 		//e=0 message^0
 		if (e.getinstring() == "0") {
 			return bigint("1");
@@ -850,10 +828,10 @@ public:
 		return expo_mod((*this), e, mod);
 	}
 	bigint decrypt(bigint e, bigint phin,bigint n) {
-		return expo_mod((*this), e.inverse(phin), n);
+		return expo_mod((*this), e.inverse(phin), n).divide(n, false);
 	}
 	bigint decrypt(bigint d, bigint mod) {
-		return expo_mod((*this), d, mod);
+		return expo_mod((*this), d, mod).divide(mod,false);
 	}
 	bigint inverse( bigint mod) {
 		return extended_euclidian((*this), mod);
@@ -871,6 +849,7 @@ void test(string p, string original) {
 	}
 }
 int main() {
+
 	string p = "12369571528747655798110188786567180759626910465726920556567298659370399748072366507234899432827475865189642714067836207300153035059472237275816384410077871";
 	string q = "2065420353441994803054315079370635087865508423962173447811880044936318158815802774220405304957787464676771309034463560633713497474362222775683960029689473";
 	string pq = "25548364798832019218170326077010425733930233389897468141147917831084690989884562791601588954296621731652139141347541240725432606132471100644835778517336041031200174441223836394229943651678525471050219216183727749114047330431603023948126844573697946795476319956787513765533596926704755530772983549787878951983";
@@ -880,28 +859,23 @@ int main() {
 	string E = "65537";
 	string d = "25051719899710729069339146813050963409059898810366373119834423967819636191509401691818253978210229371822961344590338934536803264841097247978074700319812702399440521918349189245279566231685265955731649745935378380489722580113725907099133943430294137060596724659637599737926649148356615085679203385772673944833";
 	string ec_88 = "4397678428390379126255360246165021910057442267382175543246817108158797115317154540746718616555865161372450860559307149988169566508274711121236049281217144195628407516579953387138808449458611836421032431582081899650685651973204503916459595600207918950383877057152533041873901965623112895996177941667469292738";
-
-	
-	bigint minus2(minus);
-	/*p = "77";
-	q = "3";
-	E = "5";	
-	d = "61";
-	pq = "231";
-	phi = "152";
-	ec_88 = "121";*/
-	string calcres = "4139812100905";
-	bigint a = bigint("655537").inverse(bigint("5218765875123"));
-//	bigint a = bigint("14").inverse(bigint("103"));
-
-	cout << a.getinstring()<<endl;
-	/*
-	clock_t t = clock();
-	bigint e(E);
-	cout << e.Multiply(e.inverse(bigint(phi))).getinstring();
-	cout << endl << endl;
 	bigint x(p);
 	bigint y(q);
+	bigint n(pq);
+	bigint minus2(minus);
+	
+	clock_t t = clock();
+	t = clock();
+	for (int i = 0; i < 1000; i++) n.divide(y);;
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
+	
+	
+	t = clock();
+	bigint e(E);
+	//cout << e.Multiply(e.inverse(bigint(phi))).getinstring();
+	cout << endl << endl;
+	
 	bigint message("88");
 	cout << "TEST N " << endl;
 	bigint xy = x.Multiply(y);
@@ -917,23 +891,19 @@ int main() {
 
 
 	cout << "TEST inverse of e " << endl;
-	bigint d_k(d);
 	bigint dd = e.inverse(pphii);
 	test(dd.getinstring(), d);
 
 	cout << "TEST decryption 1" << endl;
 	bigint dec = ecc.decrypt(dd,xy);
 	test(dec.getinstring(), "88");
+	cout << endl << endl << dec.getinstring() << endl << endl;
 
-
-	cout << "TEST decryption 2" << endl;
-	dec = ecc.decrypt(dd, xy);
-	test(dec.getinstring(), "88");
 	cout << "\n\n decrypted again > : " << dec.getinstring() << "\n\n";
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	cout << endl << pq.length() << endl;
-
+	/*
 	bigint coo = x.divide(y);
 	bigint r = x.divide(y,false);
 	bigint original =(coo.linear_mult(y)).add((r));
@@ -952,7 +922,7 @@ int main() {
 	for (int i = 0; i < 1000; i++) x.divide(y);;
 	t = clock() - t;
 	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
-	
-	cout << "end....\n";*/
+	*/
+	cout << "end....\n";
 	return 0;
 }
