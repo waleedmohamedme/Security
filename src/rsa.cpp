@@ -9,7 +9,7 @@ class bigint {
 private:
 
 public:
-
+	int base = 9;
 	string integer = "";
 	deque<unsigned long long > number;
 	bool positive = true;
@@ -44,16 +44,16 @@ public:
 		else {
 			positive = true;
 		}
-		int x = 7;
+		
 
 		while (value.length()>0) {
-			if (value.length() <= 7) {
+			if (value.length() <= base) {
 				number.push_back(stoull(value));
 
 				break;
 			}
-			number.push_back(stoull(value.substr(value.length() - 7, 7)));
-			value = value.substr(0, value.length() - 7);
+			number.push_back(stoull(value.substr(value.length() - base, base)));
+			value = value.substr(0, value.length() - base);
 
 		}
 
@@ -66,7 +66,7 @@ public:
 			value = value*(-1);
 		}
 		integer = to_string(value);
-		if (integer.length()>7) {
+		if (integer.length()>base) {
 			bigint x = bigint(integer);
 			x.positive = positive;
 			*this = x;
@@ -81,7 +81,7 @@ public:
 			value = value*(-1);
 		}
 		integer = to_string(value);
-		if (integer.length()>7) {
+		if (integer.length()>base) {
 			bigint x = bigint(integer);
 			x.positive = positive;
 			*this = x;
@@ -100,7 +100,7 @@ public:
 			value = value*(-1);
 		}
 		integer = to_string(value);
-		if (integer.length()>7) {
+		if (integer.length()>base) {
 			bigint x = bigint(integer);
 			x.positive = positive;
 			*this = x;
@@ -124,8 +124,8 @@ public:
 		for (unsigned long long n : number) {
 			temp_string = to_string(n);
 
-			if (temp_string.length() < 7) {
-				int l = (7 - temp_string.length());
+			if (temp_string.length() < base) {
+				int l = (base - temp_string.length());
 
 				temp_string.insert(0, zeros, 0, l);
 			}
@@ -133,7 +133,7 @@ public:
 			integer.insert(0, temp_string);
 			//cout << temp_string << endl << integer<<endl;
 		}
-		integer = to_string(number[number.size() - 1]) + integer.substr(7);
+		integer = to_string(number[number.size() - 1]) + integer.substr(base);
 		dirty = false;
 		//cout << integer << endl;
 		if (integer.empty()) {
@@ -148,63 +148,6 @@ public:
 		string temp = "0";
 		temp += x;
 		return stoi(temp);
-	}
-	string sub_string(string a, string b) {
-		string final = "";
-		int finalzero = 0;
-		if (a.length()>b.length()) {
-			int zeros = a.length() - b.length();
-			for (int i = 0; i<zeros; i++)
-				b.insert(0, to_string(0));
-
-		}
-		else if (a.length()<b.length()) {
-			int zeros = b.length() - a.length();
-			for (int i = 0; i<zeros; i++)
-				a.insert(0, to_string(0));
-		}
-		for (unsigned int i = 0; i<a.length(); i++)
-		{
-			if (toint(a[i]) != 0) {
-				finalzero = i;
-				break;
-			}
-		}
-		for (int i = a.length() - 1; i >= 0; i--) {
-			string temp1 = "0";
-			string temp2 = "0";
-			temp1 += a[i];
-			temp2 += b[i];
-			if (stoi(temp2) - stoi(temp1)>0) {
-
-				for (int j = i - 1; j >= 0; j--) {
-					if (toint(a[j])>0) {
-						a.replace(j, 1, to_string(toint(a[j]) - 1));
-						break;
-					}
-					else if (toint(a[j]) == 0) {
-						if (j >= finalzero) {
-							a[j] = '9';
-						}
-						continue;
-					}
-
-
-				}
-				final.insert(0, to_string((10 + toint(a[i])) - toint(b[i])));
-			}
-			else if ((stoi(temp2) - stoi(temp1))<0) {
-
-				final.insert(0, to_string((toint(a[i])) - toint(b[i])));
-
-			}
-			else {
-				final.insert(0, to_string((toint(a[i])) - toint(b[i])));
-			}
-
-
-		}
-		return final;
 	}
 	string add_string(string a, string b) {
 		string sum = "";
@@ -267,7 +210,7 @@ public:
 		bigint sum;
 		sum.dirty = true;
 		//unsigned long long po = 100000000000000000;
-		unsigned long long po = 10000000;
+		unsigned long long po = 1000000000;
 		int		tt = b.number.size();
 		if (tt > number.size()) tt = number.size();
 		int i = 0;
@@ -411,13 +354,13 @@ public:
 					}
 					else if (number[j] == 0) {
 						//number[j]= 99999999999999999;
-						number[j] = 9999999;
+						number[j] = 999999999;
 					}
 
 
 				}
 				//final.number.push_back((100000000000000000 + number[i]) - b.number[i]);
-				final.number.push_back((10000000 + number[i]) - b.number[i]);
+				final.number.push_back((1000000000 + number[i]) - b.number[i]);
 			}
 			else if (temp>0) {
 
@@ -455,11 +398,11 @@ public:
 
 			for (int j = 0; j <bb.number.size(); j++) {
 				unsigned long long multi = (number[i] * bb.number[j]) + carry;
-				unsigned long long res = multi % 10000000;
-				carry = multi / 10000000;
+				unsigned long long res = multi % 1000000000;
+				carry = multi / 1000000000;
 				string re = to_string(res);
-				if (to_string(res).length() < 7) {
-					for (int i = 0; i < 7 - to_string(res).length(); i++) {
+				if (to_string(res).length() < base) {
+					for (int i = 0; i < base - to_string(res).length(); i++) {
 						re.insert(0, "0");
 					}
 				}
@@ -469,7 +412,7 @@ public:
 				output.insert(0, to_string(carry));
 			//cout << "======"<<endl;
 			for (int x = m - 1; x>0; x--)
-				output = output + "0000000";
+				output = output + "000000000";
 			//cout <<m <<"    " <<output<<endl;
 			sum = add_string(sum, (output));
 			output = "";
@@ -477,6 +420,29 @@ public:
 		}
 		return bigint(sum);
 
+	}
+	bigint db2( bigint &reminder, bool div = true) {
+		int d = 2;
+		int carry = 0;
+		int size = (*this).number.size();
+		bigint result;
+		while (size--) {
+			result.number.push_back(((*this).number[size] + carry) / 2);
+			if (((*this).number[size] + carry) % 2) {
+				carry = 1000000000;
+			}
+			else { carry = 0; }
+
+		}
+
+		if (carry) {
+			reminder = bigint("1");
+		}
+		else {
+			reminder = bigint("0");
+		}
+
+		return result;
 	}
 	//unsigned divison
 	string unsigned_division(string a, string divisor, bool r = true) {
@@ -649,13 +615,13 @@ public:
 
 		if (left) {
 			for (int i = 0; i < units; i++) {
-				input.append("0000000");
+				input.append("000000000");
 			}
 			return input;
 		}
 		else {
 			for (int i = 0; i < units; i++) {
-				input.insert(0, "00000000");
+				input.insert(0, "000000000");
 			}
 			return input;
 
@@ -801,25 +767,29 @@ public:
 	}
 	
 	bigint expo_mod(bigint message, bigint e, bigint mod) {
-		rounds++;
 		//e=0 message^0
+		bigint one("1");
 		if (e.getinstring() == "0") {
 			return bigint("1");
 		}
-		if (e.getinstring() == "1" || e.getinstring() == "1") {
-			return message.divide(mod,false);
+		if (e.getinstring() == "1" ) {
+			return message.divide(mod, false);
 		}
-		if (e.divide(bigint("2"),false).getinstring() == "" || e.divide(bigint("2"),false).getinstring() == "0") {
+		string db2 = e.divide(bigint("2"), false).getinstring();
+		//bigint rem_db2;
+		//bigint db2 = e.db2(rem_db2);
+		//string rem = rem_db2.getinstring();
+		if (db2 == "" || db2 == "0") {
 			//even n ;
 			bigint y = expo_mod(message, e.divide(bigint("2")), mod);
-			return expo_mod(y.Multiply(y), bigint("1"), mod);
+			return expo_mod(y.Multiply(y), one, mod);
 		}
 		else {
 			// n is odd ;
 			
-			bigint b = expo_mod(message, bigint("1"), mod);
-			bigint a = expo_mod(message, subtruct(e,bigint("1")), mod);
-			return expo_mod(a.Multiply(b), bigint("1"), mod);
+			bigint b = expo_mod(message,one, mod);
+			bigint a = expo_mod(message, subtruct(e,one), mod);
+			return expo_mod(a.Multiply(b),one, mod);
 		}
 
 	}
@@ -865,13 +835,13 @@ int main() {
 	bigint minus2(minus);
 	
 	clock_t t = clock();
-	t = clock();
-	for (int i = 0; i < 1000; i++) n.divide(y);;
-	t = clock() - t;
-	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
+	//t = clock();
+	//for (int i = 0; i < 1000; i++) n.divide(y);;
+	//t = clock() - t;
+	//cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	
 	
-	t = clock();
+	//t = clock();
 	bigint e(E);
 	//cout << e.Multiply(e.inverse(bigint(phi))).getinstring();
 	cout << endl << endl;
@@ -894,10 +864,13 @@ int main() {
 	bigint dd = e.inverse(pphii);
 	test(dd.getinstring(), d);
 
+	cout << "\n\n time till now :" << (((float)clock() - t) / CLOCKS_PER_SEC) << " seconds\n\n" << endl;
+
 	cout << "TEST decryption 1" << endl;
 	bigint dec = ecc.decrypt(dd,xy);
 	test(dec.getinstring(), "88");
-	cout << endl << endl << dec.getinstring() << endl << endl;
+	
+	cout << endl << endl;
 
 	cout << "\n\n decrypted again > : " << dec.getinstring() << "\n\n";
 	t = clock() - t;
