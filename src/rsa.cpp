@@ -206,7 +206,7 @@ public:
 		return a.add(b);
 	}
 	//unsigned add	
-	bigint add(bigint &b, bool print = false) {
+	bigint add(bigint b, bool print = false) {
 		bigint sum;
 		sum.dirty = true;
 		//unsigned long long po = 100000000000000000;
@@ -240,7 +240,7 @@ public:
 		return sum;
 	}
 	//signed subtract 
-	bigint subtruct( bigint &b) {
+	bigint subtruct( bigint b) {
 		bigint a = (*this);
 		if (a.positive == false && b.positive == false) {
 			//b-a
@@ -279,7 +279,7 @@ public:
 		}
 	}
 
-	bigint subtruct(bigint &a, bigint &b) {
+	bigint subtruct(bigint a, bigint b) {
 		
 		if (a.positive == false && b.positive == false) {
 			//b-a
@@ -318,7 +318,7 @@ public:
 		}
 	}
 	//unsigned subtract
-	bigint sub(bigint &b, bool print = false) {
+	bigint sub(bigint b, bool print = false) {
 		bigint final;
 		final.dirty = true;
 		int finalzero = 0;
@@ -387,11 +387,13 @@ public:
 
 	}
 	//unsigned multiply
-	bigint linear_mult(bigint &bb) {
+	bigint linear_mult(bigint bb) {
 
-		string output = "";
+		//string output = "";
+		bigint out;
 		int m = 1;
-		string sum = "";
+		//string sum = "";
+		bigint fout;
 		for (int i = 0; i <number.size(); i++) {
 
 			unsigned long long carry = 0;
@@ -400,28 +402,38 @@ public:
 				unsigned long long multi = (number[i] * bb.number[j]) + carry;
 				unsigned long long res = multi % 1000000000;
 				carry = multi / 1000000000;
-				string re = to_string(res);
+				out.number.push_back(res);
+				/*string re = to_string(res);
 				if (to_string(res).length() < base) {
 					for (int i = 0; i < base - to_string(res).length(); i++) {
 						re.insert(0, "0");
 					}
 				}
-				output.insert(0, re);
+				output.insert(0, re);*/
 			}
 			if (carry != 0)
-				output.insert(0, to_string(carry));
+			{
+				//output.insert(0, to_string(carry));
+				out.number.push_back(carry);
+			}
 			//cout << "======"<<endl;
-			for (int x = m - 1; x>0; x--)
-				output = output + "000000000";
+			for (int x = m - 1; x > 0; x--)
+			{
+				//output = output + "000000000";
+				out.number.push_front(0);
+			}
 			//cout <<m <<"    " <<output<<endl;
-			sum = add_string(sum, (output));
-			output = "";
+			//sum = add_string(sum, (output));
+			fout = fout.add(out);
+			out.number.clear();
+			//output = "";
 			m++;
 		}
-		return bigint(sum);
+		return fout;
+		//return bigint(sum);
 
 	}
-	bigint db2( bigint &reminder, bool div = true) {
+	bigint db2( bigint reminder, bool div = true) {
 		int d = 2;
 		int carry = 0;
 		int size = (*this).number.size();
@@ -445,7 +457,7 @@ public:
 		return result;
 	}
 	//unsigned divison
-	string unsigned_division(string &a, string &divisor, bool r = true) {
+	string unsigned_division(string a, string divisor, bool r = true) {
 		//if r == true >>> divison else reminder
 		vector<string> m;
 		string d = divisor.substr(0, 1);
@@ -505,7 +517,7 @@ public:
 				tobesubbed = m[--ll];
 			}
 
-			//for (i = 0; i < (leftover.length() - tobesubbed.length()); i++) zeros.append("0");
+			
 			zeros.append((leftover.length() - tobesubbed.length()), '0');
 			if (max_min(tobesubbed + zeros, leftover) == 0) {
 				zeros = zeros.substr(0, zeros.length() - 1);
@@ -514,7 +526,6 @@ public:
 			leftover = remove(subtruct(bigint(leftover), bigint(tobesubbed)).getinstring());
 			if (ll == 3) {
 				aa = "8";
-
 			}
 			else if (ll == 2) {
 				aa = "4";
@@ -537,7 +548,7 @@ public:
 		return result;
 	}
 	//signed division
-	bigint divide(bigint &bb, bool div = true) {
+	bigint divide(bigint bb, bool div = true) {
 		string a = getinstring();
 		string b = bb.getinstring();
 		bool aa_positive = (*this).positive;
@@ -564,7 +575,7 @@ public:
 
 	}
 	//signed multiply
-	bigint Multiply(bigint &bb) {
+	bigint Multiply(bigint bb) {
 		bool aa_positive = (*this).positive;
 		bool bb_positive = bb.positive;
 		bool result_sign;
@@ -661,7 +672,7 @@ public:
 		}
 
 	}
-	int max_min(string &a, string &b, bool max = true) {
+	int max_min(string a, string b, bool max = true) {
 		//if 0 >> a 
 		//if 1 >> b 
 		//if 2 equal
@@ -691,7 +702,7 @@ public:
 	
 	bigint multiply_kara(bigint bb, bool print = false) {
 		if (number.size() + bb.number.size() <= 2) {
-			if (to_string(number[0]).length() + to_string(bb.number[0]).length() <= 15) {
+			if (to_string(number[0]).length() + to_string(bb.number[0]).length() <= 18) {
 				return bigint(number[0] * bb.number[0]);
 			}
 
@@ -727,13 +738,13 @@ public:
 
 		return product;
 	}
-	bigint phin( bigint &b) {
+	bigint phin( bigint b) {
 		return (subtruct((*this), bigint(1)).Multiply(subtruct(b, bigint(1))));
 	}
-	bigint calculate_n(bigint &b) {
+	bigint calculate_n(bigint b) {
 		return ((*this).Multiply(b));
 	}
-	bigint extended_euclidian(bigint &e, bigint &mod) {
+	bigint extended_euclidian(bigint e, bigint mod) {
 		bigint  A2, A3, B2, B3;
 		bigint A2_next, A3_next, B2_next, B3_next;
 		bigint Q;
@@ -766,7 +777,7 @@ public:
 		return (*this);
 	}
 	
-	bigint expo_mod(bigint &message, bigint &e, bigint &mod) {
+	bigint expo_mod(bigint message, bigint e, bigint mod) {
 		//e=0 message^0
 		bigint one("1");
 		if (e.getinstring() == "0") {
@@ -793,17 +804,17 @@ public:
 		}
 
 	}
-	bigint encrypt(bigint &e, bigint &mod) {
+	bigint encrypt(bigint e, bigint mod) {
 
 		return expo_mod((*this), e, mod);
 	}
-	bigint decrypt(bigint &e, bigint &phin,bigint &n) {
+	bigint decrypt(bigint e, bigint phin,bigint n) {
 		return expo_mod((*this), e.inverse(phin), n).divide(n, false);
 	}
-	bigint decrypt(bigint &d, bigint &mod) {
+	bigint decrypt(bigint d, bigint mod) {
 		return expo_mod((*this), d, mod).divide(mod,false);
 	}
-	bigint inverse( bigint &mod) {
+	bigint inverse( bigint mod) {
 		return extended_euclidian((*this), mod);
 	}
 	
@@ -840,7 +851,15 @@ int main() {
 	//t = clock() - t;
 	//cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
 	
-	
+	t = clock();
+	for (int i = 0; i < 1000; i++) x.Multiply(y);;
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
+	t = clock();
+	for (int i = 0; i < 1000; i++) x.divide(y);;
+	t = clock() - t;
+	cout << "time :" << (((float)t) / CLOCKS_PER_SEC) << " seconds" << endl;
+
 	//t = clock();
 	bigint e(E);
 	//cout << e.Multiply(e.inverse(bigint(phi))).getinstring();
